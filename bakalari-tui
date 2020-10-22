@@ -1,0 +1,202 @@
+#!/usr/bin/python
+import requests
+import curses
+import gettoken
+import datetime
+showtable = 0
+showhw = 0
+grades = 0
+showall = 0
+user = 0
+server = "<server>"
+username = "<username>"
+password = "<password>"
+class BearerAuth(requests.auth.AuthBase):
+    def __init__(self, token):
+        self.token = token
+    def __call__(self, r):
+        r.headers["authorization"] = "Bearer " + self.token
+        return r
+
+maintoken = gettoken.getAccessToken(server, username, password)
+logintoken = gettoken.getLoginToken(server, maintoken[0])
+def updateToken(accesstoken):
+    global maintoken
+    maintoken = gettoken.refreshToken(server, maintoken[1])
+    return maintoken
+
+def getAverageGrades(accesstoken):
+    try:
+        returnstr= ""
+        response = requests.get(server+"/3/marks", auth=BearerAuth(accesstoken[0])).json()
+        gradesbysubject = response['Subjects']
+        count = 0
+        for i in gradesbysubject:
+            marks = gradesbysubject[count]
+            count += 1
+            subjectdata = marks["Subject"]
+            averagegrade = marks["AverageText"]
+            subjectname = subjectdata["Name"]
+            returnstr += subjectname+": "+averagegrade+"\n"
+            if returnstr == "":
+                returnstr = "No grades"
+        return returnstr
+    except: updateToken(maintoken)
+def getAllGrades(accesstoken):
+    returnstr=""
+    response = requests.get(server+"/3/marks", auth=BearerAuth(accesstoken[0])).json()
+    gradesbysub = response["Subjects"]
+    j = 0
+    k = 0
+    for i in gradesbysub:
+        subject = gradesbysub[j]
+        subdata = subject["Subject"]
+        subjectname = subdata["Name"]
+        marks = subject["Marks"]
+        j += 1
+        returnstr += subjectname+"\n"
+        k = 0
+        for i in marks:
+            actmarks = marks[k]
+            k += 1
+            number = actmarks["MarkText"]
+            weight = actmarks["Weight"]
+            markstr = str(number)
+            returnstr += "Grade: "+markstr+" Weight: "+str(weight)+"\n"
+    return returnstr
+
+def getAllHomework(accesstoken):
+    try:
+        response = requests.get(server+"/3/homeworks", auth=BearerAuth(accesstoken[0])).json()
+        hw = response["Homeworks"]
+        returnstr = ""
+        for i in hw:
+            returnstr += i["Content"]
+        return returnstr
+        return response
+    except: updateToken(maintoken)
+def getUserInfo(accesstoken):
+    try:
+        response = requests.get(server+"/3/user", auth=BearerAuth(accesstoken[0])).json()
+        parsedresponse = "Name and class: "+response['FullName']+"\n"
+        parsedresponse = parsedresponse+ "School Name: "+response['SchoolOrganizationName']+"\n"
+        parsedresponse = parsedresponse+"User Account Type: "+response['UserTypeText']+"\n"
+        parsedresponse = parsedresponse+"Study Year: "+str(response['StudyYear'])+"\n"
+        return parsedresponse
+    except: updateToken(maintoken)
+def getTimetable(accesstoken):
+    date = str(datetime.date.today())
+    response = requests.get(server+"/3/timetable/actual?date="+date, auth=BearerAuth(accesstoken[0])).json()
+    hourid = response["Hours"]
+    hourlut = {}
+    returnstr = ""
+    for i in hourid:
+        hourkey=i["Id"]
+        hourstart=i["BeginTime"]
+        hourend=i["EndTime"]
+        hourlut[hourkey]=hourstart+"-"+hourend+" "
+    subs = response["Subjects"]
+    idlut = {}
+    count = 0
+    for i in subs:
+        key=i["Id"]
+        name=i["Name"]
+        idlut[key]=name
+    days = response["Days"]
+    for i in days:
+        atoms = i
+        hours = atoms["Atoms"]
+        count += 1
+        days = {
+                1: "Pondeli",
+                2: "Utery",
+                3: "Streda",
+                4: "Ctvrtek",
+                5: "Patek"
+                }
+        returnstr += "\n"+days.get(count, "Error")+"\n"
+        for j in hours:
+            hourstr = ""
+            predmetstr = ""
+            idk = j["SubjectId"] 
+            hourstr += hourlut[j["HourId"]]
+            predmetstr += idlut[idk]
+            returnstr += hourstr
+            returnstr += " "
+            returnstr += predmetstr
+            returnstr += "\n"
+    return returnstr
+stdscr = curses.initscr()
+curses.noecho()
+def cursemain(stdscr):
+    curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
+    stdscr.refresh()
+    stdscr.getkey()
+    user = 0
+    tt = 0
+    allgrades = 0
+    grades = 0
+    hw = 0
+    welcomestr ="Bakalari Desktop "+str(datetime.date.today())+" "+str(datetime.datetime.now().strftime("%H:%M:%S"))
+    stdscr.addstr(welcomestr)
+    userwin = curses.newwin(5,60,1,0)
+    agradewin = curses.newwin(100,25,6,0)
+    gradewin = curses.newwin(15,30,5,30)
+    hwwin = curses.newwin(40,50,31,30)
+    ttwin = curses.newwin(100, 40, 0, 90)
+    while True:
+        stdscr.refresh()
+        userwin.refresh()
+        ttwin.refresh()
+        agradewin.refresh()
+        gradewin.refresh()
+        c = stdscr.getch()
+        if c == ord('u'):
+            if user == 0:
+                userwin.addstr(0,0,getUserInfo(maintoken))
+                user = 1
+                userwin.refresh()
+            elif user == 1:
+                userwin.clear()
+                user = 0
+                userwin.refresh()
+        if c == ord('a'):
+            if allgrades == 0:
+                agradewin.addstr(0,0,getAllGrades(maintoken))
+                allgrades = 1
+                agradewin.refresh()
+            elif allgrades == 1:
+                agradewin.clear()
+                agradewin.refresh()
+                allgrades = 0
+        if c == ord('g'):
+            if grades == 0:
+                gradewin.addstr(0,0,getAverageGrades(maintoken))
+                grades = 1
+                gradewin.refresh()
+            elif grades == 1:
+                gradewin.clear()
+                grades =  0
+                gradewin.refresh()
+        if c == ord('h'):
+            if hw == 0:
+                hwwin.addstr(0,0,getAllHomework(maintoken))
+                hw = 1
+                hwwin.refresh()
+            elif hw == 1:
+                hwwin.clear()
+                hw =  0
+                hwwin.refresh()
+        if c == ord('t'):
+            if tt == 0:
+                ttwin.addstr(0,0,getTimetable(maintoken))
+                tt = 1
+                ttwin.refresh()
+            elif tt == 1:
+                ttwin.clear()
+                tt =  0
+                tt.refresh()
+        elif c == ord('q'):
+            break
+curses.wrapper(cursemain)
+
