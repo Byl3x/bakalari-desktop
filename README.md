@@ -1,9 +1,9 @@
 <h1 align="center">bakalari-desktop</h1>
 
 <div align="center">
-  Desktop aplikace(2) pro pristup k informacim, protoze se mi nechce otevirat prohlizec
-   ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/Byl3x/bakalari-desktop)
-  ![GitHub last commit](https://img.shields.io/github/last-commit/Byl3x/bakalari-desktop)
+  Desktop aplikace(2) pro pristup k informacim, protoze se mi nechce otevirat prohlizec  
+  ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/Byl3x/bakalari-desktop)  
+  ![GitHub last commit](https://img.shields.io/github/last-commit/Byl3x/bakalari-desktop)  
 </div>  
 ## Features
 Rozvrh
