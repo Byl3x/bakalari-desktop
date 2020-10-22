@@ -27,5 +27,6 @@ Cela TUI byla napsana s ncurses, klavesove zkratky:
 u-show user info  
 g-show average grades  
 a-show all grades  
-h-show homework  
+h-show homework 
+t-show timetable  
 q-quit
