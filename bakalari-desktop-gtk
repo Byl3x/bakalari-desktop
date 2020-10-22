@@ -1,0 +1,196 @@
+#!/usr/bin/python
+import gi
+import requests
+gi.require_version("Gtk", "3.0")
+gi.require_version('WebKit2', '4.0')
+from gi.repository import Gtk
+from gi.repository import WebKit2 as WebKit
+import gettoken
+import datetime
+showtable = 0
+showhw = 0
+showavg = 0
+showall = 0
+showusr = 0
+server = "<server>"
+username = "<username>"
+password = "<password>"
+class BearerAuth(requests.auth.AuthBase):
+    def __init__(self, token):
+        self.token = token
+    def __call__(self, r):
+        r.headers["authorization"] = "Bearer " + self.token
+        return r
+
+maintoken = gettoken.getAccessToken(server, username, password)
+logintoken = gettoken.getLoginToken(server, maintoken[0])
+def updateToken(accesstoken):
+    global maintoken
+    maintoken = gettoken.refreshToken(server, maintoken[1])
+    return maintoken
+
+def getAverageGrades(accesstoken):
+    try:
+        returnstr= ""
+        response = requests.get(server+"/3/marks", auth=BearerAuth(accesstoken[0])).json()
+        gradesbysubject = response['Subjects']
+        count = 0
+        for i in gradesbysubject:
+            marks = gradesbysubject[count]
+            count += 1
+            subjectdata = marks["Subject"]
+            averagegrade = marks["AverageText"]
+            subjectname = subjectdata["Name"]
+            returnstr += subjectname+": "+averagegrade+"\n"
+            if returnstr == "":
+                returnstr = "No grades"
+        return returnstr
+    except: updateToken(maintoken)
+def getAllGrades(accesstoken):
+    returnstr=""
+    response = requests.get(server+"/3/marks", auth=BearerAuth(accesstoken[0])).json()
+    gradesbysub = response["Subjects"]
+    j = 0
+    k = 0
+    for i in gradesbysub:
+        subject = gradesbysub[j]
+        subdata = subject["Subject"]
+        subjectname = subdata["Name"]
+        marks = subject["Marks"]
+        j += 1
+        returnstr += "<big><b>"+subjectname+"</b></big>\n"
+        k = 0
+        for i in marks:
+            actmarks = marks[k]
+            k += 1
+            number = actmarks["MarkText"]
+            weight = actmarks["Weight"]
+            markstr = str(number)
+            returnstr += "Grade: "+markstr+" Weight: "+str(weight)+"\n"
+    return returnstr
+
+def getAllHomework(accesstoken):
+    try:
+        response = requests.get(server+"/3/homeworks", auth=BearerAuth(accesstoken[0])).json()
+        hw = response["Homeworks"]
+        returnstr = ""
+        for i in hw:
+            returnstr += i["Content"]
+        return returnstr
+        return response
+    except: updateToken(maintoken)
+def getUserInfo(accesstoken):
+    try:
+        response = requests.get(server+"/3/user", auth=BearerAuth(accesstoken[0])).json()
+        parsedresponse = "Name and class: "+response['FullName']+"\n"
+        parsedresponse = parsedresponse+ "School Name: "+response['SchoolOrganizationName']+"\n"
+        parsedresponse = parsedresponse+"User Account Type: "+response['UserTypeText']+"\n"
+        parsedresponse = parsedresponse+"Study Year: "+str(response['StudyYear'])+"\n"
+        return parsedresponse
+    except: updateToken(maintoken)
+def getTimeTable(accesstoken):
+    date = str(datetime.date.today())
+    response = requests.get(server+"/3/timetable/actual?date="+date, auth=BearerAuth(accesstoken[0])).json()
+    hourid = response["Hours"]
+    hourlut = {}
+    returnstr = ""
+    for i in hourid:
+        hourkey=i["Id"]
+        hourstart=i["BeginTime"]
+        hourend=i["EndTime"]
+        hourlut[hourkey]=hourstart+"-"+hourend+" "
+    subs = response["Subjects"]
+    idlut = {}
+    count = 0
+    for i in subs:
+        key=i["Id"]
+        name=i["Name"]
+        idlut[key]=name
+    days = response["Days"]
+    for i in days:
+        atoms = i
+        hours = atoms["Atoms"]
+        count += 1
+        days = {
+                1: "Pondeli",
+                2: "Utery",
+                3: "Streda",
+                4: "Ctvrtek",
+                5: "Patek"
+                }
+        returnstr += "\n<big><b>"+days.get(count, "Error")+"</b></big>\n"
+        for j in hours:
+            hourstr = ""
+            predmetstr = ""
+            idk = j["SubjectId"] 
+            hourstr += hourlut[j["HourId"]]
+            predmetstr += idlut[idk]
+            returnstr += hourstr
+            returnstr += " "
+            returnstr += predmetstr
+            returnstr += "\n"
+    return returnstr
+class Handler:
+    def showgrades(self, button):
+        global showavg
+        if showavg == 0:
+            showavg = 1
+            g1label.set_text(str(getAverageGrades(maintoken)))
+        else:
+            showavg = 0
+            g1label.set_text(" ")
+        print("Showing Grades...")
+    def showhomework(self, button):
+        print("Showing Homework...")
+        global showhw
+        if showhw == 0:
+            hwlabel.set_text(str(getAllHomework(maintoken)))
+            showhw = 1
+        else:
+            hwlabel.set_text(" ")
+            showhw = 0
+    def showuserinfo(self, button):
+        print("Showing User Info...")
+        global showusr
+        if showusr == 0:
+            ilabel.set_text(getUserInfo(maintoken))
+            showusr = 1
+        else:
+            showusr = 0
+            ilabel.set_text(" ")
+    def showtimetable(self, button):
+        global showtable
+        if showtable == 0:
+            timetable.set_markup(str(getTimeTable(maintoken)))
+            showtable = 1
+        else:
+            timetable.set_text(" ")
+            showtable = 0
+        print("Showing Timetable...")
+
+    def updatetoken(self, button):
+        updateToken(maintoken)
+        print("Updating Token...")
+    def showallgrades(self, button):
+        global showall
+        print("Showing All Grades...")
+        if showall == 0:
+            g2label.set_markup(str(getAllGrades(maintoken)))
+            showall = 1
+        else:
+            showall = 0
+            g2label.set_text(" ")
+builder = Gtk.Builder() 
+builder.add_from_file("bakadesktop.glade") 
+builder.connect_signals(Handler()) 
+window = builder.get_object("mainwindow")
+hwlabel = builder.get_object("homeworklabel")
+g1label = builder.get_object("avggradelabel")
+g2label = builder.get_object("allgradelabel")
+ilabel = builder.get_object("infolabel")
+timetable = builder.get_object("timetable")
+hwlabel.set_line_wrap(True)
+hwlabel.set_max_width_chars(48)
+window.set_default_size(1280,720)
+window.show_all()
+Gtk.main()
