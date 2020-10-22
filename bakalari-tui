@@ -144,6 +144,7 @@ def cursemain(stdscr):
     gradewin = curses.newwin(15,30,5,30)
     hwwin = curses.newwin(40,50,31,30)
     ttwin = curses.newwin(100, 40, 0, 90)
+    curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
     while True:
         stdscr.refresh()
         userwin.refresh()
@@ -153,7 +154,7 @@ def cursemain(stdscr):
         c = stdscr.getch()
         if c == ord('u'):
             if user == 0:
-                userwin.addstr(0,0,getUserInfo(maintoken))
+                userwin.addstr(0,0,getUserInfo(maintoken), curses.color_pair(1))
                 user = 1
                 userwin.refresh()
             elif user == 1:
@@ -162,7 +163,7 @@ def cursemain(stdscr):
                 userwin.refresh()
         if c == ord('a'):
             if allgrades == 0:
-                agradewin.addstr(0,0,getAllGrades(maintoken))
+                agradewin.addstr(0,0,getAllGrades(maintoken), curses.color_pair(1))
                 allgrades = 1
                 agradewin.refresh()
             elif allgrades == 1:
@@ -171,7 +172,7 @@ def cursemain(stdscr):
                 allgrades = 0
         if c == ord('g'):
             if grades == 0:
-                gradewin.addstr(0,0,getAverageGrades(maintoken))
+                gradewin.addstr(0,0,getAverageGrades(maintoken), curses.color_pair(1))
                 grades = 1
                 gradewin.refresh()
             elif grades == 1:
@@ -180,7 +181,7 @@ def cursemain(stdscr):
                 gradewin.refresh()
         if c == ord('h'):
             if hw == 0:
-                hwwin.addstr(0,0,getAllHomework(maintoken))
+                hwwin.addstr(0,0,getAllHomework(maintoken), curses.color_pair(1))
                 hw = 1
                 hwwin.refresh()
             elif hw == 1:
@@ -189,7 +190,7 @@ def cursemain(stdscr):
                 hwwin.refresh()
         if c == ord('t'):
             if tt == 0:
-                ttwin.addstr(0,0,getTimetable(maintoken))
+                ttwin.addstr(0,0,getTimetable(maintoken), curses.color_pair(1))
                 tt = 1
                 ttwin.refresh()
             elif tt == 1:
