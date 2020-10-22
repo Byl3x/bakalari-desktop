@@ -63,20 +63,14 @@
           </packing>
         </child>
         <child>
-          <object class="GtkScrolledWindow" id="browserwindow">
+          <object class="GtkLabel" id="timetable">
             <property name="visible">True</property>
-            <property name="can-focus">True</property>
-            <property name="shadow-type">in</property>
-            <property name="propagate-natural-width">True</property>
-            <property name="propagate-natural-height">True</property>
-            <child>
-              <placeholder/>
-            </child>
+            <property name="can-focus">False</property>
           </object>
           <packing>
-            <property name="expand">True</property>
+            <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="position">2</property>
+            <property name="position">1</property>
           </packing>
         </child>
       </object>
@@ -86,12 +80,13 @@
         <property name="visible">True</property>
         <property name="can-focus">False</property>
         <child>
-          <object class="GtkButton">
-            <property name="label" translatable="yes">Show average grades</property>
+          <object class="GtkCheckButton">
+            <property name="label" translatable="yes">Show User Info</property>
             <property name="visible">True</property>
             <property name="can-focus">True</property>
-            <property name="receives-default">True</property>
-            <signal name="clicked" handler="showgrades" swapped="no"/>
+            <property name="receives-default">False</property>
+            <property name="draw-indicator">True</property>
+            <signal name="toggled" handler="showuserinfo" swapped="no"/>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -100,12 +95,13 @@
           </packing>
         </child>
         <child>
-          <object class="GtkButton">
-            <property name="label" translatable="yes">Show Homework</property>
+          <object class="GtkCheckButton">
+            <property name="label" translatable="yes">Show Average Grades</property>
             <property name="visible">True</property>
             <property name="can-focus">True</property>
-            <property name="receives-default">True</property>
-            <signal name="clicked" handler="showhomework" swapped="no"/>
+            <property name="receives-default">False</property>
+            <property name="draw-indicator">True</property>
+            <signal name="toggled" handler="showgrades" swapped="no"/>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -114,12 +110,13 @@
           </packing>
         </child>
         <child>
-          <object class="GtkButton">
-            <property name="label" translatable="yes">Show Timetable</property>
+          <object class="GtkCheckButton">
+            <property name="label" translatable="yes">Show All Grades</property>
             <property name="visible">True</property>
             <property name="can-focus">True</property>
-            <property name="receives-default">True</property>
-            <signal name="clicked" handler="showtimetable" swapped="no"/>
+            <property name="receives-default">False</property>
+            <property name="draw-indicator">True</property>
+            <signal name="toggled" handler="showallgrades" swapped="no"/>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -128,12 +125,13 @@
           </packing>
         </child>
         <child>
-          <object class="GtkButton">
-            <property name="label" translatable="yes">Show User Info</property>
+          <object class="GtkCheckButton">
+            <property name="label" translatable="yes">Show All Homework</property>
             <property name="visible">True</property>
             <property name="can-focus">True</property>
-            <property name="receives-default">True</property>
-            <signal name="clicked" handler="showuserinfo" swapped="no"/>
+            <property name="receives-default">False</property>
+            <property name="draw-indicator">True</property>
+            <signal name="toggled" handler="showhomework" swapped="no"/>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -142,12 +140,13 @@
           </packing>
         </child>
         <child>
-          <object class="GtkButton">
-            <property name="label" translatable="yes">Refresh Token</property>
+          <object class="GtkCheckButton">
+            <property name="label" translatable="yes">Show Timetable</property>
             <property name="visible">True</property>
             <property name="can-focus">True</property>
-            <property name="receives-default">True</property>
-            <signal name="clicked" handler="updatetoken" swapped="no"/>
+            <property name="receives-default">False</property>
+            <property name="draw-indicator">True</property>
+            <signal name="toggled" handler="showtimetable" swapped="no"/>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -157,11 +156,11 @@
         </child>
         <child>
           <object class="GtkButton">
-            <property name="label" translatable="yes">Show All grades</property>
+            <property name="label" translatable="yes">Refresh Token</property>
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <property name="receives-default">True</property>
-            <signal name="clicked" handler="showallgrades" swapped="no"/>
+            <signal name="clicked" handler="updatetoken" swapped="no"/>
           </object>
           <packing>
             <property name="expand">False</property>
