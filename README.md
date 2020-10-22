@@ -10,9 +10,13 @@ Je potreba python 3.7 nebo vyssi.
 Moduly: PyGObject, WebKit2Gtk, GTK a requests  
 Vsechny soubory musi zustat ve stejne slozce(Nebo zmente misto v kodu)  
 Prikazy: 
-> git clone https://github.com/Byl3x/bakalari-desktop.git
-> cd bakalari-desktop
+> git clone https://github.com/Byl3x/bakalari-desktop.git  
+> cd bakalari-desktop  
 > ./bakalari-desktop-gtk
+
+nebo  
+> ./bakalari-tui
+
 Pred tim musite ve baklari-desktop.py zmenit username, heslo a server  
 Priklad formatu server url: "https://gvp.cz/info/api"  
 ## To Do
