@@ -1,5 +1,6 @@
 # Bakalari Desktop
 ![Code Size](https://img.shields.io/github/languages/code-size/Byl3x/bakalari-desktop?style=for-the-badge "Code size")
+Nefunguje s nejnovejsim API, znovu to zmenili
 ## Features
 Rozvrh
 Znamky(Prumer a vsechny)  
